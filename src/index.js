@@ -1,7 +1,10 @@
 import Fastify from 'fastify'
 import fastifyJwt from '@fastify/jwt'
+import fastifyRateLimit from '@fastify/rate-limit'
+
 import { getDb } from './db.js'
 import { ObjectId } from 'mongodb'
+import { initAuthRoute, JWT_SECRET, rateLimitOptions, requireRole } from './auth.js';
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 if (!isTestEnv && !process.env.DB_NAME) {
@@ -10,6 +13,10 @@ if (!isTestEnv && !process.env.DB_NAME) {
 }
 
 const fastify = Fastify({})
+await fastify.register(fastifyJwt, { secret: JWT_SECRET })
+await fastify.register(fastifyRateLimit, rateLimitOptions)
+initAuthRoute(fastify)
+
 
 const { dbClient, collections: { dbUsers } } = await getDb()
 
@@ -73,6 +80,7 @@ fastify.get('/v1/customers/:id', {
 })
 
 fastify.post('/v1/customers', {
+    preHandler: [requireRole('admin')],
     schema: {
         body: {
             type: 'object',
@@ -99,6 +107,7 @@ fastify.post('/v1/customers', {
 })
 
 fastify.put('/v1/customers/:id', {
+    preHandler: [requireRole('admin')],
     schema: {
         body: {
             type: 'object',
@@ -149,6 +158,7 @@ fastify.put('/v1/customers/:id', {
 })
 
 fastify.delete('/v1/customers/:id', {
+    preHandler: [requireRole('admin')],
     schema: {
         response: {
             200: {
@@ -231,6 +241,7 @@ export const server = fastify
 //     url: `/v1/auth/login`,
 //     payload: user,
 // })
+
 // const { token } = await authResponse.json()
 // console.log(token)
 
@@ -245,3 +256,36 @@ export const server = fastify
 
 // console.log(' createCustomerResponse ', await createCustomerResponse.json())
 
+
+
+// import { authUsers, ADMIN_SUPER_SECRET } from './auth.js'
+
+// const adminUser = authUsers.at(0)
+// const memberUser = authUsers.at(1)
+// const user = adminUser
+
+// console.log(user)
+
+// const authResponse = await fastify.inject({
+//     method: 'POST',
+//     url: `/v1/auth/service-token`,
+//     payload: {
+//         ...user,
+//         adminSuperSecret: ADMIN_SUPER_SECRET,
+//     },
+// })
+
+// const { role, serviceToken } = await authResponse.json()
+// console.log(role, serviceToken)
+
+// const createCustomerResponse = await fastify.inject({
+//     method: 'POST',
+//     url: `/v1/customers`,
+//     headers: {
+//         'Authorization': `bearer ${serviceToken}`
+//         // 'X-Service-Token': `${serviceToken}`
+//     },
+//     payload: { name: 'test', phone: 'test' },
+// })
+
+// console.log(' createCustomerResponse ', await createCustomerResponse.json())

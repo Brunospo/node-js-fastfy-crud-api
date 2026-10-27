@@ -100,7 +100,7 @@ describe('API Workflow', () => {
     after(async () => _testServer.close())
 
 
-    describe.skip('POST /v1/auth/service-token', () => {
+    describe('POST /v1/auth/service-token', () => {
         const ADMIN_SUPER_SECRET = 'AM I THE BOSS?'
 
         it('should return role and a UUID serviceToken for valid admin credentials', async () => {
@@ -149,7 +149,7 @@ describe('API Workflow', () => {
         })
     })
 
-    describe.skip('Service token - API access & rate limiting', () => {
+    describe('Service token - API access & rate limiting', () => {
         const ADMIN_SUPER_SECRET = 'AM I THE BOSS?'
 
         it(`should allow API access and rate limit after ${REQUESTS_PER_MINUTE} requests with the service token`, async () => {
@@ -173,7 +173,7 @@ describe('API Workflow', () => {
         })
     })
 
-    describe.skip('POST /v1/auth/login', () => {
+    describe('POST /v1/auth/login', () => {
         it('should return a token for valid credentials (admin)', async () => {
             const res = await _testServer.inject({
                 method: 'POST',
@@ -214,7 +214,7 @@ describe('API Workflow', () => {
         })
     })
 
-    describe.skip('RBAC - member role', () => {
+    describe('RBAC - member role', () => {
         it('member can list customers (GET /v1/customers)', async () => {
             const res = await getCustomers(_memberToken)
             deepStrictEqual(res.statusCode, 200)
