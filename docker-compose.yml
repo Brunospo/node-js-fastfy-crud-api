@@ -17,6 +17,8 @@ services:
       - nodemodules:/src/node_modules
     depends_on:
       - mongodb
+    networks:
+    - minha-rede # <--- Adicionado
 
   mongodb:
     image: mongo
@@ -25,6 +27,12 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - minha-rede # <--- Adicionado
 
 volumes:
   nodemodules: {}
+
+networks:
+  minha-rede:
+    external: true
